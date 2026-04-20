@@ -64,7 +64,7 @@ export default function AuthForm({ mode, role }: Props) {
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.error?.formErrors?.join(", ") || data.error || "Sign up failed");
+          throw new Error(formatError(data.error) || "Sign up failed");
         }
       }
       const signInRes = await signIn("credentials", {
@@ -149,6 +149,23 @@ export default function AuthForm({ mode, role }: Props) {
       </div>
     </main>
   );
+}
+
+function formatError(err: unknown): string {
+  if (!err) return "";
+  if (typeof err === "string") return err;
+  if (typeof err === "object" && err !== null) {
+    const e = err as { formErrors?: string[]; fieldErrors?: Record<string, string[]> };
+    const parts: string[] = [];
+    if (e.formErrors?.length) parts.push(...e.formErrors);
+    if (e.fieldErrors) {
+      for (const [k, v] of Object.entries(e.fieldErrors)) {
+        if (v?.length) parts.push(`${k}: ${v.join(", ")}`);
+      }
+    }
+    if (parts.length) return parts.join("; ");
+  }
+  return String(err);
 }
 
 function Field({
