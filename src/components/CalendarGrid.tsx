@@ -166,40 +166,43 @@ export default function CalendarGrid({
             >
               <span className="text-[11px] font-semibold">{format(day, "d")}</span>
               <div className="mt-0.5 flex w-full flex-col gap-0.5">
-                {daySlots.slice(0, 2).map((s) => {
-                  const start = new Date(s.startAt);
-                  const end = new Date(s.endAt);
-                  const isStart = isSameDay(day, start);
-                  const isEnd = isSameDay(day, end);
-                  const multiDay = !isSameDay(start, end);
-                  const radius = !multiDay
-                    ? "rounded"
-                    : isStart && isEnd
-                    ? "rounded"
-                    : isStart
-                    ? "rounded-l"
-                    : isEnd
-                    ? "rounded-r"
-                    : "";
-                  const tone = multiDay
-                    ? "bg-sky-500 text-white"
-                    : "bg-sky-100 text-sky-800";
-                  const subTone = multiDay ? "text-sky-100" : "text-sky-700";
-                  return (
-                    <span
-                      key={s.id}
-                      className={`block w-full overflow-hidden px-1 py-0.5 text-[10px] ${tone} ${radius}`}
-                      title={`${s.label}${s.companyName ? ` — ${s.companyName}` : ""} · ${format(start, "MMM d h:mma")} → ${format(end, "MMM d h:mma")}`}
-                    >
-                      <span className="block truncate font-medium">{s.label}</span>
-                      {s.companyName && (
-                        <span className={`block truncate ${subTone}`}>{s.companyName}</span>
-                      )}
-                    </span>
-                  );
-                })}
-                {daySlots.length > 2 && (
-                  <span className="text-[10px] text-sky-700">+{daySlots.length - 2} slot</span>
+                {daySlots.length > 2 ? (
+                  <span className="block w-full rounded bg-sky-100 px-1 py-0.5 text-center text-[11px] font-semibold text-sky-800">
+                    {daySlots.length} slots
+                  </span>
+                ) : (
+                  daySlots.map((s) => {
+                    const start = new Date(s.startAt);
+                    const end = new Date(s.endAt);
+                    const isStart = isSameDay(day, start);
+                    const isEnd = isSameDay(day, end);
+                    const multiDay = !isSameDay(start, end);
+                    const radius = !multiDay
+                      ? "rounded"
+                      : isStart && isEnd
+                      ? "rounded"
+                      : isStart
+                      ? "rounded-l"
+                      : isEnd
+                      ? "rounded-r"
+                      : "";
+                    const tone = multiDay
+                      ? "bg-sky-500 text-white"
+                      : "bg-sky-100 text-sky-800";
+                    const subTone = multiDay ? "text-sky-100" : "text-sky-700";
+                    return (
+                      <span
+                        key={s.id}
+                        className={`block w-full overflow-hidden px-1 py-0.5 text-[10px] ${tone} ${radius}`}
+                        title={`${s.label}${s.companyName ? ` — ${s.companyName}` : ""} · ${format(start, "MMM d h:mma")} → ${format(end, "MMM d h:mma")}`}
+                      >
+                        <span className="block truncate font-medium">{s.label}</span>
+                        {s.companyName && (
+                          <span className={`block truncate ${subTone}`}>{s.companyName}</span>
+                        )}
+                      </span>
+                    );
+                  })
                 )}
                 {dayHolds.slice(0, 2).map((h) => (
                   <span
