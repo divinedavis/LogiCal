@@ -66,6 +66,10 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   const [slotErr, setSlotErr] = useState<string | null>(null);
   const [labelOptions, setLabelOptions] = useState<string[]>([]);
   const [companyOptions, setCompanyOptions] = useState<string[]>([]);
+  const [labelOpen, setLabelOpen] = useState(false);
+  const [companyOpen, setCompanyOpen] = useState(false);
+  const [editLabelOpen, setEditLabelOpen] = useState(false);
+  const [editCompanyOpen, setEditCompanyOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResultSlot[] | null>(null);
   const [searching, setSearching] = useState(false);
@@ -85,6 +89,18 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   useEffect(() => {
     void loadSuggestions();
   }, []);
+
+  function topMatches(options: string[], q: string, limit = 3) {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return options.slice(0, limit);
+    const starts = options.filter((o) => o.toLowerCase().startsWith(needle));
+    const contains = options.filter(
+      (o) => !o.toLowerCase().startsWith(needle) && o.toLowerCase().includes(needle)
+    );
+    return [...starts, ...contains]
+      .filter((o) => o.toLowerCase() !== needle)
+      .slice(0, limit);
+  }
 
   async function loadSuggestions() {
     const res = await fetch("/api/slots/suggestions");
@@ -327,32 +343,74 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">Create Slot</h2>
           <div className="space-y-2">
-            <input
-              type="text"
-              list="slot-label-options"
-              value={slotLabel}
-              onChange={(e) => setSlotLabel(e.target.value)}
-              placeholder="Slot label (e.g. Bay A-12)"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-            <datalist id="slot-label-options">
-              {labelOptions.map((l) => (
-                <option key={l} value={l} />
-              ))}
-            </datalist>
-            <input
-              type="text"
-              list="slot-company-options"
-              value={slotCompany}
-              onChange={(e) => setSlotCompany(e.target.value)}
-              placeholder="Company name (optional)"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-            <datalist id="slot-company-options">
-              {companyOptions.map((c) => (
-                <option key={c} value={c} />
-              ))}
-            </datalist>
+            <div className="relative">
+              <input
+                type="text"
+                value={slotLabel}
+                onChange={(e) => {
+                  setSlotLabel(e.target.value);
+                  setLabelOpen(true);
+                }}
+                onFocus={() => setLabelOpen(true)}
+                onBlur={() => setTimeout(() => setLabelOpen(false), 120)}
+                placeholder="Slot label (e.g. Bay A-12)"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                autoComplete="off"
+              />
+              {labelOpen && topMatches(labelOptions, slotLabel).length > 0 && (
+                <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+                  {topMatches(labelOptions, slotLabel).map((l) => (
+                    <li key={l}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setSlotLabel(l);
+                          setLabelOpen(false);
+                        }}
+                        className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
+                      >
+                        {l}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                value={slotCompany}
+                onChange={(e) => {
+                  setSlotCompany(e.target.value);
+                  setCompanyOpen(true);
+                }}
+                onFocus={() => setCompanyOpen(true)}
+                onBlur={() => setTimeout(() => setCompanyOpen(false), 120)}
+                placeholder="Company name (optional)"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                autoComplete="off"
+              />
+              {companyOpen && topMatches(companyOptions, slotCompany).length > 0 && (
+                <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+                  {topMatches(companyOptions, slotCompany).map((c) => (
+                    <li key={c}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setSlotCompany(c);
+                          setCompanyOpen(false);
+                        }}
+                        className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
+                      >
+                        {c}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <input
               type="number"
               value={slotSize}
@@ -529,26 +587,81 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
                         </>
                       ) : (
                         <div className="space-y-2">
-                          <input
-                            type="text"
-                            list="slot-label-options"
-                            value={editSlotState!.label}
-                            onChange={(e) =>
-                              setEditSlotState({ ...editSlotState!, label: e.target.value })
-                            }
-                            placeholder="Slot label"
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                          />
-                          <input
-                            type="text"
-                            list="slot-company-options"
-                            value={editSlotState!.companyName}
-                            onChange={(e) =>
-                              setEditSlotState({ ...editSlotState!, companyName: e.target.value })
-                            }
-                            placeholder="Company name (optional)"
-                            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                          />
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={editSlotState!.label}
+                              onChange={(e) => {
+                                setEditSlotState({ ...editSlotState!, label: e.target.value });
+                                setEditLabelOpen(true);
+                              }}
+                              onFocus={() => setEditLabelOpen(true)}
+                              onBlur={() => setTimeout(() => setEditLabelOpen(false), 120)}
+                              placeholder="Slot label"
+                              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                              autoComplete="off"
+                            />
+                            {editLabelOpen &&
+                              topMatches(labelOptions, editSlotState!.label).length > 0 && (
+                                <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+                                  {topMatches(labelOptions, editSlotState!.label).map((l) => (
+                                    <li key={l}>
+                                      <button
+                                        type="button"
+                                        onMouseDown={(e) => {
+                                          e.preventDefault();
+                                          setEditSlotState({ ...editSlotState!, label: l });
+                                          setEditLabelOpen(false);
+                                        }}
+                                        className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
+                                      >
+                                        {l}
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                          </div>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={editSlotState!.companyName}
+                              onChange={(e) => {
+                                setEditSlotState({ ...editSlotState!, companyName: e.target.value });
+                                setEditCompanyOpen(true);
+                              }}
+                              onFocus={() => setEditCompanyOpen(true)}
+                              onBlur={() => setTimeout(() => setEditCompanyOpen(false), 120)}
+                              placeholder="Company name (optional)"
+                              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                              autoComplete="off"
+                            />
+                            {editCompanyOpen &&
+                              topMatches(companyOptions, editSlotState!.companyName).length > 0 && (
+                                <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+                                  {topMatches(companyOptions, editSlotState!.companyName).map(
+                                    (c) => (
+                                      <li key={c}>
+                                        <button
+                                          type="button"
+                                          onMouseDown={(e) => {
+                                            e.preventDefault();
+                                            setEditSlotState({
+                                              ...editSlotState!,
+                                              companyName: c,
+                                            });
+                                            setEditCompanyOpen(false);
+                                          }}
+                                          className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-50"
+                                        >
+                                          {c}
+                                        </button>
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              )}
+                          </div>
                           <input
                             type="number"
                             value={editSlotState!.sizeSqft}
