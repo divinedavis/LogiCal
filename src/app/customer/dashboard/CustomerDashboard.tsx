@@ -105,19 +105,40 @@ export default function CustomerDashboard({ orgs, initialHolds }: Props) {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8">
-      <h1 className="text-3xl font-bold">Book a storage slot</h1>
+    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <h1 className="text-2xl font-bold sm:text-3xl">Book a storage slot</h1>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
-        <CalendarGrid
-          holds={filteredHolds}
-          selectedStart={start}
-          selectedEnd={end}
-          onSelect={(s, e) => {
-            setStart(s);
-            setEnd(e);
-          }}
-        />
+        <div className="hidden md:block">
+          <CalendarGrid
+            holds={filteredHolds}
+            selectedStart={start}
+            selectedEnd={end}
+            onSelect={(s, e) => {
+              setStart(s);
+              setEnd(e);
+            }}
+          />
+        </div>
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:hidden">
+          <h2 className="text-base font-semibold">Pick your dates</h2>
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-slate-600">Start</label>
+            <input
+              type="date"
+              value={start ? format(start, "yyyy-MM-dd") : ""}
+              onChange={(e) => setStart(e.target.value ? new Date(e.target.value) : null)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+            <label className="text-xs font-medium text-slate-600">End</label>
+            <input
+              type="date"
+              value={end ? format(end, "yyyy-MM-dd") : ""}
+              onChange={(e) => setEnd(e.target.value ? new Date(e.target.value) : null)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
 
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div>

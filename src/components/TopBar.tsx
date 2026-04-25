@@ -9,20 +9,22 @@ export default function TopBar() {
 
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
         <Link href="/" className="text-lg font-bold">
           LogiCal
         </Link>
-        <div className="flex items-center gap-4 text-sm text-slate-600">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600">
           {user && (
             <>
-              <span>
-                {user.name}{" "}
+              <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span>{user.name}</span>
                 <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs uppercase tracking-wide text-slate-600">
                   {user.role}
                 </span>
                 {user.clerkOrgDomain && (
-                  <span className="ml-2 text-xs text-slate-500">@{user.clerkOrgDomain}</span>
+                  <span className="hidden text-xs text-slate-500 sm:inline">
+                    @{user.clerkOrgDomain}
+                  </span>
                 )}
               </span>
               <button

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import CalendarGrid, { CalendarHold, CalendarSlot } from "@/components/CalendarGrid";
+import AgendaList from "@/components/AgendaList";
 import MessageThread from "@/components/MessageThread";
 
 interface Slot {
@@ -314,21 +315,28 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
     setEditingHoldId(null);
   }
 
+  const onPickDay = (day: Date) => {
+    setPopupDay(day);
+    setEditingSlotId(null);
+    setEditSlotState(null);
+  };
+
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8">
+    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <CalendarGrid
-          holds={calHolds}
-          slots={calSlots}
-          selectedStart={null}
-          selectedEnd={null}
-          onSelect={() => {}}
-          onDayClick={(day) => {
-            setPopupDay(day);
-            setEditingSlotId(null);
-            setEditSlotState(null);
-          }}
-        />
+        <div className="hidden md:block">
+          <CalendarGrid
+            holds={calHolds}
+            slots={calSlots}
+            selectedStart={null}
+            selectedEnd={null}
+            onSelect={() => {}}
+            onDayClick={onPickDay}
+          />
+        </div>
+        <div className="md:hidden">
+          <AgendaList holds={calHolds} slots={calSlots} onDayClick={onPickDay} />
+        </div>
 
         <div className="space-y-6">
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -369,12 +377,12 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
             />
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-600">Start</label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <input
                   type="date"
                   value={slotStartDate}
                   onChange={(e) => setSlotStartDate(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                  className="min-w-[10rem] flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 />
                 <input
                   type="time"
@@ -386,12 +394,12 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-600">End</label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <input
                   type="date"
                   value={slotEndDate}
                   onChange={(e) => setSlotEndDate(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                  className="min-w-[10rem] flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 />
                 <input
                   type="time"
@@ -575,7 +583,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
                             placeholder="Size (sqft, optional)"
                             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                           />
-                          <div className="flex gap-2">
+                          <div className="flex flex-wrap gap-2">
                             <input
                               type="date"
                               value={editSlotState!.startDate}

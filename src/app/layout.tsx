@@ -7,10 +7,16 @@ export const metadata: Metadata = {
   description: "Storage slot booking — customer and clerk workflows",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover" as const,
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <html lang="en" className="overflow-x-hidden">
+      <body className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 antialiased">
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
