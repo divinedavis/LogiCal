@@ -32,7 +32,7 @@ export default async function Page() {
 
   return (
     <>
-      <TopBar orgName={org!.name} orgDomain={org!.domain} />
+      <TopBar />
       <ClerkDashboard
         org={{ id: org!.id, name: org!.name, domain: org!.domain }}
         initialSlots={slots.map((s) => ({
