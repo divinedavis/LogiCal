@@ -406,6 +406,19 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
                 }}
                 onFocus={() => setCompanyOpen(true)}
                 onBlur={() => setTimeout(() => setCompanyOpen(false), 120)}
+                onKeyDown={(e) => {
+                  if (e.key !== "Tab" || e.shiftKey) return;
+                  const matches = topMatches(companyOptions, slotCompany);
+                  if (
+                    slotCompany.trim().length >= 2 &&
+                    matches.length === 1 &&
+                    matches[0] !== slotCompany
+                  ) {
+                    e.preventDefault();
+                    setSlotCompany(matches[0]);
+                    setCompanyOpen(false);
+                  }
+                }}
                 placeholder="Company name (optional)"
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 autoComplete="off"
@@ -616,6 +629,19 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
                               }}
                               onFocus={() => setEditLabelOpen(true)}
                               onBlur={() => setTimeout(() => setEditLabelOpen(false), 120)}
+                              onKeyDown={(e) => {
+                                if (e.key !== "Tab" || e.shiftKey) return;
+                                const matches = topMatches(labelOptions, editSlotState!.label);
+                                if (
+                                  editSlotState!.label.trim().length >= 2 &&
+                                  matches.length === 1 &&
+                                  matches[0] !== editSlotState!.label
+                                ) {
+                                  e.preventDefault();
+                                  setEditSlotState({ ...editSlotState!, label: matches[0] });
+                                  setEditLabelOpen(false);
+                                }
+                              }}
                               placeholder="Slot label"
                               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                               autoComplete="off"
@@ -651,6 +677,25 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
                               }}
                               onFocus={() => setEditCompanyOpen(true)}
                               onBlur={() => setTimeout(() => setEditCompanyOpen(false), 120)}
+                              onKeyDown={(e) => {
+                                if (e.key !== "Tab" || e.shiftKey) return;
+                                const matches = topMatches(
+                                  companyOptions,
+                                  editSlotState!.companyName
+                                );
+                                if (
+                                  editSlotState!.companyName.trim().length >= 2 &&
+                                  matches.length === 1 &&
+                                  matches[0] !== editSlotState!.companyName
+                                ) {
+                                  e.preventDefault();
+                                  setEditSlotState({
+                                    ...editSlotState!,
+                                    companyName: matches[0],
+                                  });
+                                  setEditCompanyOpen(false);
+                                }
+                              }}
                               placeholder="Company name (optional)"
                               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                               autoComplete="off"
