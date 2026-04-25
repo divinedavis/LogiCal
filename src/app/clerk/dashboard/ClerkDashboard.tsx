@@ -51,6 +51,17 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   const [slotEndDate, setSlotEndDate] = useState(defaultDate);
   const [slotEndTime, setSlotEndTime] = useState("17:00");
   const [slotErr, setSlotErr] = useState<string | null>(null);
+  const [searchQ, setSearchQ] = useState("");
+  const [searchResults, setSearchResults] = useState<
+    | null
+    | {
+        id: string;
+        name: string;
+        domain: string;
+        slots: { id: string; label: string; sizeSqft: number | null; startAt: string; endAt: string }[];
+      }[]
+  >(null);
+  const [searching, setSearching] = useState(false);
   const [activeHoldId, setActiveHoldId] = useState<string | null>(null);
   const [editingHoldId, setEditingHoldId] = useState<string | null>(null);
   const [editStart, setEditStart] = useState("");
@@ -147,6 +158,26 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
     setEditEnd(h.endDate.slice(0, 10));
   }
 
+  async function runSearch() {
+    const q = searchQ.trim();
+    if (!q) {
+      setSearchResults(null);
+      return;
+    }
+    setSearching(true);
+    try {
+      const res = await fetch(`/api/slots/search?q=${encodeURIComponent(q)}`);
+      if (res.ok) {
+        const { orgs } = await res.json();
+        setSearchResults(orgs);
+      } else {
+        setSearchResults([]);
+      }
+    } finally {
+      setSearching(false);
+    }
+  }
+
   async function saveEdit(id: string) {
     await updateHold(id, {
       startDate: new Date(editStart).toISOString(),
@@ -173,6 +204,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
           onSelect={() => {}}
         />
 
+        <div className="space-y-6">
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">Slots</h2>
           <div className="space-y-2">
@@ -254,6 +286,70 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
               Add slot
             </button>
           </div>
+        </div>
+
+        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-lg font-semibold">Find slots by company</h2>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") runSearch();
+              }}
+              placeholder="Company name or domain"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+            <button
+              type="button"
+              onClick={runSearch}
+              disabled={searching}
+              className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
+            >
+              {searching ? "…" : "Search"}
+            </button>
+          </div>
+          {searchResults !== null && (
+            <div className="space-y-3">
+              {searchResults.length === 0 && (
+                <p className="text-sm text-slate-500">No companies matched.</p>
+              )}
+              {searchResults.map((o) => (
+                <div key={o.id} className="rounded-lg border border-slate-200 p-3">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-medium">{o.name}</span>
+                    <span className="font-mono text-xs text-slate-500">{o.domain}</span>
+                  </div>
+                  {o.slots.length === 0 ? (
+                    <p className="mt-1 text-xs text-slate-500">No current slots.</p>
+                  ) : (
+                    <ul className="mt-2 space-y-1">
+                      {o.slots.map((s) => {
+                        const start = new Date(s.startAt);
+                        const end = new Date(s.endAt);
+                        const sameDay = start.toDateString() === end.toDateString();
+                        return (
+                          <li key={s.id} className="rounded bg-slate-50 px-2 py-1 text-xs">
+                            <span className="font-medium">{s.label}</span>
+                            {s.sizeSqft && (
+                              <span className="ml-2 text-slate-500">{s.sizeSqft} sqft</span>
+                            )}
+                            <div className="text-slate-600">
+                              {sameDay
+                                ? `${format(start, "MMM d")} · ${format(start, "h:mma")}–${format(end, "h:mma")}`
+                                : `${format(start, "MMM d, h:mma")} → ${format(end, "MMM d, h:mma")}`}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         </div>
       </div>
 
