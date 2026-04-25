@@ -289,25 +289,37 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
     }
   }
 
-  async function runSearch() {
+  useEffect(() => {
     const q = searchQ.trim();
     if (!q) {
       setSearchResults(null);
+      setSearching(false);
       return;
     }
-    setSearching(true);
-    try {
-      const res = await fetch(`/api/slots/search?q=${encodeURIComponent(q)}`);
-      if (res.ok) {
-        const { slots } = await res.json();
-        setSearchResults(slots);
-      } else {
-        setSearchResults([]);
+    const controller = new AbortController();
+    const t = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/slots/search?q=${encodeURIComponent(q)}`, {
+          signal: controller.signal,
+        });
+        if (res.ok) {
+          const { slots } = await res.json();
+          setSearchResults(slots);
+        } else {
+          setSearchResults([]);
+        }
+      } catch (e) {
+        if ((e as Error).name !== "AbortError") setSearchResults([]);
+      } finally {
+        setSearching(false);
       }
-    } finally {
-      setSearching(false);
-    }
-  }
+    }, 200);
+    return () => {
+      clearTimeout(t);
+      controller.abort();
+    };
+  }, [searchQ]);
 
   async function saveEdit(id: string) {
     await updateHold(id, {
@@ -422,27 +434,17 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
               type="text"
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") runSearch();
-              }}
               placeholder="Slot label or company name"
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             />
-            <button
-              type="button"
-              onClick={runSearch}
-              disabled={searching}
-              className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
-            >
-              {searching ? "…" : "Search"}
-            </button>
+            {searching && <span className="text-xs text-slate-500">…</span>}
           </div>
           {searchResults !== null && (
             <div className="space-y-2">
-              {searchResults.length === 0 && (
+              {searchResults.length === 0 && !searching && (
                 <p className="text-sm text-slate-500">No slots matched.</p>
               )}
-              {searchResults.map((s) => {
+              {searchResults.slice(0, 3).map((s) => {
                 const start = new Date(s.startAt);
                 const end = new Date(s.endAt);
                 const sameDay = start.toDateString() === end.toDateString();
