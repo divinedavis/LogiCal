@@ -137,6 +137,53 @@ export default function CalendarView({ holds, slots, onDayClick }: Props) {
   );
 }
 
+function isAllDay(start: Date, end: Date) {
+  if (!isSameDay(start, end)) return true;
+  return start.getHours() <= HOUR_START && end.getHours() >= HOUR_END;
+}
+
+interface AllDayBar {
+  slot: CalendarSlot;
+  startCol: number;
+  span: number;
+}
+
+function layoutAllDayBars(days: Date[], slots: CalendarSlot[]): AllDayBar[][] {
+  const rangeStart = startOfDay(days[0]);
+  const rangeEnd = addDays(startOfDay(days[days.length - 1]), 1);
+  const sorted = [...slots]
+    .map((s) => ({ s, start: new Date(s.startAt), end: new Date(s.endAt) }))
+    .filter(({ start, end }) => isAllDay(start, end) && end > rangeStart && start < rangeEnd)
+    .sort((a, b) => +a.start - +b.start);
+
+  const rows: AllDayBar[][] = [];
+  for (const { s, start, end } of sorted) {
+    const startCol = Math.max(
+      0,
+      days.findIndex((d) => isSameDay(d, start) || d > start)
+    );
+    let endCol = -1;
+    for (let i = days.length - 1; i >= 0; i--) {
+      if (days[i] < end || isSameDay(days[i], end)) {
+        endCol = i;
+        break;
+      }
+    }
+    if (endCol < 0 || startCol > endCol) continue;
+    const span = endCol - startCol + 1;
+
+    let placedRow = rows.findIndex((row) =>
+      row.every((b) => b.startCol + b.span - 1 < startCol || b.startCol > endCol)
+    );
+    if (placedRow === -1) {
+      rows.push([{ slot: s, startCol, span }]);
+    } else {
+      rows[placedRow].push({ slot: s, startCol, span });
+    }
+  }
+  return rows;
+}
+
 function WeekDayGrid({
   days,
   slots,
@@ -148,6 +195,17 @@ function WeekDayGrid({
   holds: CalendarHold[];
   onDayClick: (day: Date) => void;
 }) {
+  const allDayRows = useMemo(() => layoutAllDayBars(days, slots), [days, slots]);
+  const timedSlots = useMemo(
+    () =>
+      slots.filter((s) => {
+        const start = new Date(s.startAt);
+        const end = new Date(s.endAt);
+        return !isAllDay(start, end);
+      }),
+    [slots]
+  );
+
   return (
     <div className="overflow-x-auto">
       <div
@@ -177,6 +235,51 @@ function WeekDayGrid({
           );
         })}
 
+        <div className="border-b border-slate-200 pr-1 pt-1 text-right text-[10px] text-slate-500">
+          all-day
+        </div>
+        <div
+          className="relative border-b border-slate-200"
+          style={{ gridColumn: `2 / span ${days.length}` }}
+        >
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))`,
+              gridAutoRows: "24px",
+              gap: "2px",
+              padding: "2px 0",
+              minHeight: allDayRows.length === 0 ? "8px" : undefined,
+            }}
+          >
+            {allDayRows.flatMap((row, ri) =>
+              row.map((b) => {
+                const start = new Date(b.slot.startAt);
+                const end = new Date(b.slot.endAt);
+                return (
+                  <button
+                    key={`${b.slot.id}-${ri}`}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDayClick(days[b.startCol]);
+                    }}
+                    className="overflow-hidden truncate rounded-md bg-sky-500 px-2 text-left text-[11px] font-medium text-white shadow-sm hover:bg-sky-600"
+                    style={{
+                      gridRow: ri + 1,
+                      gridColumn: `${b.startCol + 1} / span ${b.span}`,
+                    }}
+                    title={`${b.slot.label}${b.slot.companyName ? ` — ${b.slot.companyName}` : ""} · ${format(start, "MMM d")} → ${format(end, "MMM d")}`}
+                  >
+                    {b.slot.label}
+                    {b.slot.companyName ? ` · ${b.slot.companyName}` : ""}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+
         <div className="relative" style={{ height: TOTAL_HEIGHT }}>
           {HOURS.map((h) => (
             <div
@@ -190,7 +293,7 @@ function WeekDayGrid({
         </div>
 
         {days.map((day) => (
-          <DayColumn key={day.toISOString()} day={day} slots={slots} holds={holds} onDayClick={onDayClick} />
+          <DayColumn key={day.toISOString()} day={day} slots={timedSlots} holds={holds} onDayClick={onDayClick} />
         ))}
       </div>
     </div>
