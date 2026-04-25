@@ -28,6 +28,7 @@ export interface CalendarSlot {
   startAt: string;
   endAt: string;
   label: string;
+  companyName?: string | null;
   sizeSqft?: number | null;
 }
 
@@ -167,10 +168,14 @@ export default function CalendarGrid({
                   return (
                     <span
                       key={s.id}
-                      className="truncate rounded bg-sky-100 px-1 py-0.5 text-[10px] text-sky-800"
-                      title={`${s.label} ${format(start, "MMM d h:mma")} → ${format(end, "MMM d h:mma")}`}
+                      className="block w-full overflow-hidden rounded bg-sky-100 px-1 py-0.5 text-[10px] text-sky-800"
+                      title={`${s.label}${s.companyName ? ` — ${s.companyName}` : ""} · ${format(start, "MMM d h:mma")} → ${format(end, "MMM d h:mma")}`}
                     >
-                      {s.label} · {timeLabel.toLowerCase()}
+                      <span className="block truncate font-medium">{s.label}</span>
+                      {s.companyName && (
+                        <span className="block truncate text-sky-700">{s.companyName}</span>
+                      )}
+                      <span className="block truncate text-sky-700">{timeLabel.toLowerCase()}</span>
                     </span>
                   );
                 })}

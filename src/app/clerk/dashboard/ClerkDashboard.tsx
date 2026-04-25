@@ -106,6 +106,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
         startAt: s.startAt,
         endAt: s.endAt,
         label: s.label,
+        companyName: s.companyName,
         sizeSqft: s.sizeSqft,
       })),
     [slots]

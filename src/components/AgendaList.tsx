@@ -118,10 +118,15 @@ export default function AgendaList({ holds, slots, onDayClick, rangeDays = 14 }:
                     return (
                       <div
                         key={s.id}
-                        className="flex items-baseline justify-between gap-2 rounded bg-sky-50 px-2 py-1 text-xs text-sky-900"
+                        className="rounded bg-sky-50 px-2 py-1 text-xs text-sky-900"
                       >
-                        <span className="truncate font-medium">{s.label}</span>
-                        <span className="shrink-0 text-sky-700">{timeLabel.toLowerCase()}</span>
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="truncate font-medium">{s.label}</span>
+                          <span className="shrink-0 text-sky-700">{timeLabel.toLowerCase()}</span>
+                        </div>
+                        {s.companyName && (
+                          <div className="truncate text-sky-700">{s.companyName}</div>
+                        )}
                       </div>
                     );
                   })}
