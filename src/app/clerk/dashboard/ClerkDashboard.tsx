@@ -199,7 +199,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
 
         <div className="space-y-6">
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold">Slots</h2>
+          <h2 className="text-lg font-semibold">Create Slot</h2>
           <div className="space-y-2">
             {slots.length === 0 && <p className="text-sm text-slate-500">No slots yet.</p>}
             {slots.map((s) => {
