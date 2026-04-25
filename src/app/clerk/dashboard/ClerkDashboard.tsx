@@ -188,14 +188,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="text-3xl font-bold">{org.name} calendar</h1>
-        <p className="text-sm text-slate-600">
-          Org domain: <span className="font-mono">{org.domain}</span>
-        </p>
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <CalendarGrid
           holds={calHolds}
           slots={calSlots}
