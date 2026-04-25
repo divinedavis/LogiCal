@@ -353,6 +353,25 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
                 }}
                 onFocus={() => setLabelOpen(true)}
                 onBlur={() => setTimeout(() => setLabelOpen(false), 120)}
+                onKeyDown={(e) => {
+                  // Tab to autofill: if the user has typed ≥ 2 chars
+                  // and exactly one suggestion is left, the first Tab
+                  // commits that suggestion to the field and stays
+                  // focused. A second Tab (with the field already
+                  // matching the suggestion) falls through to the
+                  // browser's default and moves focus to Company.
+                  if (e.key !== "Tab" || e.shiftKey) return;
+                  const matches = topMatches(labelOptions, slotLabel);
+                  if (
+                    slotLabel.trim().length >= 2 &&
+                    matches.length === 1 &&
+                    matches[0] !== slotLabel
+                  ) {
+                    e.preventDefault();
+                    setSlotLabel(matches[0]);
+                    setLabelOpen(false);
+                  }
+                }}
                 placeholder="Slot label (e.g. Bay A-12)"
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 autoComplete="off"
