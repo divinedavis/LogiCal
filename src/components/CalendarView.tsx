@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   addDays,
   addMonths,
@@ -31,9 +31,22 @@ const HOUR_PX = 48;
 const TOTAL_HEIGHT = (HOUR_END - HOUR_START) * HOUR_PX;
 const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => i + HOUR_START);
 
+const VIEW_STORAGE_KEY = "logical:clerk:calendarView";
+
 export default function CalendarView({ holds, slots, onDayClick }: Props) {
   const [view, setView] = useState<View>("month");
   const [cursor, setCursor] = useState(() => startOfDay(new Date()));
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
+    if (stored === "day" || stored === "week" || stored === "month") {
+      setView(stored);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(VIEW_STORAGE_KEY, view);
+  }, [view]);
 
   function goToday() {
     setCursor(startOfDay(new Date()));
