@@ -15,7 +15,7 @@ export default async function Page() {
     prisma.clerkOrg.findUnique({ where: { id: session.user.clerkOrgId } }),
     prisma.slot.findMany({
       where: { clerkOrgId: session.user.clerkOrgId },
-      orderBy: { label: "asc" },
+      orderBy: { startAt: "asc" },
     }),
     prisma.hold.findMany({
       where: { clerkOrgId: session.user.clerkOrgId },
@@ -40,6 +40,8 @@ export default async function Page() {
           label: s.label,
           sizeSqft: s.sizeSqft,
           notes: s.notes,
+          startAt: s.startAt.toISOString(),
+          endAt: s.endAt.toISOString(),
         }))}
         initialHolds={holds.map((h) => ({
           id: h.id,

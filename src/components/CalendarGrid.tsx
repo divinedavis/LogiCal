@@ -23,14 +23,23 @@ export interface CalendarHold {
   label?: string;
 }
 
+export interface CalendarSlot {
+  id: string;
+  startAt: string;
+  endAt: string;
+  label: string;
+  sizeSqft?: number | null;
+}
+
 interface Props {
   holds: CalendarHold[];
+  slots?: CalendarSlot[];
   selectedStart: Date | null;
   selectedEnd: Date | null;
   onSelect: (start: Date | null, end: Date | null) => void;
 }
 
-export default function CalendarGrid({ holds, selectedStart, selectedEnd, onSelect }: Props) {
+export default function CalendarGrid({ holds, slots = [], selectedStart, selectedEnd, onSelect }: Props) {
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
 
   const days = useMemo(() => {
@@ -56,6 +65,18 @@ export default function CalendarGrid({ holds, selectedStart, selectedEnd, onSele
       const start = new Date(h.startDate);
       const end = new Date(h.endDate);
       return isWithinInterval(day, { start, end });
+    });
+  }
+
+  function slotsForDay(day: Date) {
+    const dayStart = new Date(day);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(day);
+    dayEnd.setHours(23, 59, 59, 999);
+    return slots.filter((s) => {
+      const start = new Date(s.startAt);
+      const end = new Date(s.endAt);
+      return start <= dayEnd && end >= dayStart;
     });
   }
 
@@ -100,6 +121,7 @@ export default function CalendarGrid({ holds, selectedStart, selectedEnd, onSele
         {days.map((day) => {
           const inMonth = isSameMonth(day, cursor);
           const dayHolds = holdsForDay(day);
+          const daySlots = slotsForDay(day);
           const isStart = selectedStart && isSameDay(day, selectedStart);
           const isEnd = selectedEnd && isSameDay(day, selectedEnd);
           const inRange =
@@ -119,6 +141,30 @@ export default function CalendarGrid({ holds, selectedStart, selectedEnd, onSele
             >
               <span className="text-[11px] font-semibold">{format(day, "d")}</span>
               <div className="mt-0.5 flex w-full flex-col gap-0.5">
+                {daySlots.slice(0, 2).map((s) => {
+                  const start = new Date(s.startAt);
+                  const end = new Date(s.endAt);
+                  const sameDay = isSameDay(start, end);
+                  const timeLabel = sameDay
+                    ? `${format(start, "h:mma")}–${format(end, "h:mma")}`
+                    : isSameDay(day, start)
+                    ? `${format(start, "h:mma")} →`
+                    : isSameDay(day, end)
+                    ? `→ ${format(end, "h:mma")}`
+                    : "all day";
+                  return (
+                    <span
+                      key={s.id}
+                      className="truncate rounded bg-sky-100 px-1 py-0.5 text-[10px] text-sky-800"
+                      title={`${s.label} ${format(start, "MMM d h:mma")} → ${format(end, "MMM d h:mma")}`}
+                    >
+                      {s.label} · {timeLabel.toLowerCase()}
+                    </span>
+                  );
+                })}
+                {daySlots.length > 2 && (
+                  <span className="text-[10px] text-sky-700">+{daySlots.length - 2} slot</span>
+                )}
                 {dayHolds.slice(0, 2).map((h) => (
                   <span
                     key={h.id}

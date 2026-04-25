@@ -16,16 +16,23 @@ export async function GET(req: Request) {
 
   const slots = await prisma.slot.findMany({
     where: { clerkOrgId: targetOrgId },
-    orderBy: { label: "asc" },
+    orderBy: { startAt: "asc" },
   });
   return NextResponse.json({ slots });
 }
 
-const createSchema = z.object({
-  label: z.string().min(1),
-  sizeSqft: z.number().int().positive().optional(),
-  notes: z.string().optional(),
-});
+const createSchema = z
+  .object({
+    label: z.string().min(1),
+    sizeSqft: z.number().int().positive().optional(),
+    notes: z.string().optional(),
+    startAt: z.string().datetime(),
+    endAt: z.string().datetime(),
+  })
+  .refine((d) => new Date(d.endAt) > new Date(d.startAt), {
+    message: "endAt must be after startAt",
+    path: ["endAt"],
+  });
 
 export async function POST(req: Request) {
   const session = await requireSession("CLERK");
@@ -37,7 +44,12 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const slot = await prisma.slot.create({
-    data: { ...parsed.data, clerkOrgId: session.user.clerkOrgId },
+    data: {
+      ...parsed.data,
+      startAt: new Date(parsed.data.startAt),
+      endAt: new Date(parsed.data.endAt),
+      clerkOrgId: session.user.clerkOrgId,
+    },
   });
   return NextResponse.json({ slot });
 }

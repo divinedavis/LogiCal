@@ -53,6 +53,8 @@ model Slot {
   label      String
   sizeSqft   Int?
   notes      String?
+  startAt    DateTime @default(now())
+  endAt      DateTime @default(now())
   createdAt  DateTime @default(now())
 
   clerkOrgId String
@@ -60,7 +62,7 @@ model Slot {
 
   holds Hold[]
 
-  @@index([clerkOrgId])
+  @@index([clerkOrgId, startAt])
 }
 
 model Hold {

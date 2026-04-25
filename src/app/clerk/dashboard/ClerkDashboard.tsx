@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
-import CalendarGrid, { CalendarHold } from "@/components/CalendarGrid";
+import CalendarGrid, { CalendarHold, CalendarSlot } from "@/components/CalendarGrid";
 import MessageThread from "@/components/MessageThread";
 
 interface Slot {
@@ -10,6 +10,12 @@ interface Slot {
   label: string;
   sizeSqft: number | null;
   notes: string | null;
+  startAt: string;
+  endAt: string;
+}
+
+function defaultDate() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 interface Hold {
@@ -40,10 +46,27 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   const [holds, setHolds] = useState<Hold[]>(initialHolds);
   const [slotLabel, setSlotLabel] = useState("");
   const [slotSize, setSlotSize] = useState("");
+  const [slotStartDate, setSlotStartDate] = useState(defaultDate);
+  const [slotStartTime, setSlotStartTime] = useState("09:00");
+  const [slotEndDate, setSlotEndDate] = useState(defaultDate);
+  const [slotEndTime, setSlotEndTime] = useState("17:00");
+  const [slotErr, setSlotErr] = useState<string | null>(null);
   const [activeHoldId, setActiveHoldId] = useState<string | null>(null);
   const [editingHoldId, setEditingHoldId] = useState<string | null>(null);
   const [editStart, setEditStart] = useState("");
   const [editEnd, setEditEnd] = useState("");
+
+  const calSlots = useMemo<CalendarSlot[]>(
+    () =>
+      slots.map((s) => ({
+        id: s.id,
+        startAt: s.startAt,
+        endAt: s.endAt,
+        label: s.label,
+        sizeSqft: s.sizeSqft,
+      })),
+    [slots]
+  );
 
   const calHolds = useMemo<CalendarHold[]>(
     () =>
@@ -58,13 +81,29 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   );
 
   async function addSlot() {
-    if (!slotLabel.trim()) return;
+    setSlotErr(null);
+    if (!slotLabel.trim()) {
+      setSlotErr("Slot label is required.");
+      return;
+    }
+    const startAt = new Date(`${slotStartDate}T${slotStartTime}`);
+    const endAt = new Date(`${slotEndDate}T${slotEndTime}`);
+    if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
+      setSlotErr("Pick a valid start and end.");
+      return;
+    }
+    if (endAt <= startAt) {
+      setSlotErr("End must be after start.");
+      return;
+    }
     const res = await fetch("/api/slots", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         label: slotLabel,
         sizeSqft: slotSize ? Number(slotSize) : undefined,
+        startAt: startAt.toISOString(),
+        endAt: endAt.toISOString(),
       }),
     });
     if (res.ok) {
@@ -72,6 +111,9 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
       setSlots((prev) => [...prev, slot]);
       setSlotLabel("");
       setSlotSize("");
+    } else {
+      const j = await res.json().catch(() => ({}));
+      setSlotErr(typeof j.error === "string" ? j.error : "Could not add slot.");
     }
   }
 
@@ -125,6 +167,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
         <CalendarGrid
           holds={calHolds}
+          slots={calSlots}
           selectedStart={null}
           selectedEnd={null}
           onSelect={() => {}}
@@ -134,12 +177,24 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
           <h2 className="text-lg font-semibold">Slots</h2>
           <div className="space-y-2">
             {slots.length === 0 && <p className="text-sm text-slate-500">No slots yet.</p>}
-            {slots.map((s) => (
-              <div key={s.id} className="rounded-lg bg-slate-50 p-2 text-sm">
-                <span className="font-medium">{s.label}</span>
-                {s.sizeSqft && <span className="ml-2 text-slate-500">{s.sizeSqft} sqft</span>}
-              </div>
-            ))}
+            {slots.map((s) => {
+              const start = new Date(s.startAt);
+              const end = new Date(s.endAt);
+              const sameDay = start.toDateString() === end.toDateString();
+              return (
+                <div key={s.id} className="rounded-lg bg-slate-50 p-2 text-sm">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-medium">{s.label}</span>
+                    {s.sizeSqft && <span className="text-xs text-slate-500">{s.sizeSqft} sqft</span>}
+                  </div>
+                  <div className="text-xs text-slate-600">
+                    {sameDay
+                      ? `${format(start, "MMM d")} · ${format(start, "h:mma")}–${format(end, "h:mma")}`
+                      : `${format(start, "MMM d, h:mma")} → ${format(end, "MMM d, h:mma")}`}
+                  </div>
+                </div>
+              );
+            })}
           </div>
           <div className="space-y-2 border-t border-slate-200 pt-4">
             <input
@@ -156,6 +211,41 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
               placeholder="Size (sqft, optional)"
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             />
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">Start</label>
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={slotStartDate}
+                  onChange={(e) => setSlotStartDate(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+                <input
+                  type="time"
+                  value={slotStartTime}
+                  onChange={(e) => setSlotStartTime(e.target.value)}
+                  className="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">End</label>
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={slotEndDate}
+                  onChange={(e) => setSlotEndDate(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+                <input
+                  type="time"
+                  value={slotEndTime}
+                  onChange={(e) => setSlotEndTime(e.target.value)}
+                  className="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+            {slotErr && <p className="text-xs text-rose-600">{slotErr}</p>}
             <button
               type="button"
               onClick={addSlot}
