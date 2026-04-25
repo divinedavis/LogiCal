@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
-import CalendarGrid, { CalendarHold, CalendarSlot } from "@/components/CalendarGrid";
+import { CalendarHold, CalendarSlot } from "@/components/CalendarGrid";
+import CalendarView from "@/components/CalendarView";
 import AgendaList from "@/components/AgendaList";
 import MessageThread from "@/components/MessageThread";
 
@@ -326,14 +327,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="hidden md:block">
-          <CalendarGrid
-            holds={calHolds}
-            slots={calSlots}
-            selectedStart={null}
-            selectedEnd={null}
-            onSelect={() => {}}
-            onDayClick={onPickDay}
-          />
+          <CalendarView holds={calHolds} slots={calSlots} onDayClick={onPickDay} />
         </div>
         <div className="md:hidden">
           <AgendaList holds={calHolds} slots={calSlots} onDayClick={onPickDay} />

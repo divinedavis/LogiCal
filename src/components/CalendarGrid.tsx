@@ -39,6 +39,8 @@ interface Props {
   selectedEnd: Date | null;
   onSelect: (start: Date | null, end: Date | null) => void;
   onDayClick?: (day: Date) => void;
+  cursor?: Date;
+  showHeader?: boolean;
 }
 
 export default function CalendarGrid({
@@ -48,8 +50,12 @@ export default function CalendarGrid({
   selectedEnd,
   onSelect,
   onDayClick,
+  cursor: cursorProp,
+  showHeader = true,
 }: Props) {
-  const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
+  const [internalCursor, setInternalCursor] = useState(() => startOfMonth(new Date()));
+  const cursor = cursorProp ?? internalCursor;
+  const setCursor = (d: Date) => setInternalCursor(d);
 
   const days = useMemo(() => {
     const gridStart = startOfWeek(startOfMonth(cursor), { weekStartsOn: 0 });
@@ -93,8 +99,13 @@ export default function CalendarGrid({
     });
   }
 
+  const wrapperClass = showHeader
+    ? "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+    : "";
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className={wrapperClass}>
+      {showHeader && (
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold">{format(cursor, "MMMM yyyy")}</h2>
         <div className="flex gap-2">
@@ -121,6 +132,7 @@ export default function CalendarGrid({
           </button>
         </div>
       </div>
+      )}
 
       <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-slate-500">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
