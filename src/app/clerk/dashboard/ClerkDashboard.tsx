@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { CalendarHold, CalendarSlot } from "@/components/CalendarGrid";
 import CalendarView from "@/components/CalendarView";
@@ -286,6 +286,18 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
     };
   }, [searchQ]);
 
+  const rightColRef = useRef<HTMLDivElement>(null);
+  const [rightHeight, setRightHeight] = useState<number | null>(null);
+  useEffect(() => {
+    const el = rightColRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([entry]) => {
+      setRightHeight(Math.round(entry.contentRect.height));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const onPickDay = (day: Date) => {
     setPopupDay(day);
     setEditingSlotId(null);
@@ -294,8 +306,15 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-      <div className="grid items-stretch gap-6 lg:grid-cols-[1fr_360px]">
-        <div className="hidden md:block">
+      <div className="grid items-start gap-6 lg:grid-cols-[1fr_360px]">
+        <div
+          className="hidden md:block"
+          style={
+            rightHeight
+              ? { height: `${rightHeight}px`, minHeight: 0 }
+              : undefined
+          }
+        >
           <div className="h-full">
             <CalendarView holds={calHolds} slots={calSlots} onDayClick={onPickDay} />
           </div>
@@ -304,7 +323,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
           <AgendaList holds={calHolds} slots={calSlots} onDayClick={onPickDay} />
         </div>
 
-        <div className="space-y-6">
+        <div ref={rightColRef} className="space-y-6">
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">Create Slot</h2>
           <div className="space-y-2">
