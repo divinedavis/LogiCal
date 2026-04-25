@@ -78,8 +78,8 @@ export default function CalendarView({ holds, slots, onDayClick }: Props) {
   }, [view, cursor]);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+    <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -123,31 +123,35 @@ export default function CalendarView({ holds, slots, onDayClick }: Props) {
         </div>
       </div>
 
-      {view === "month" && (
-        <CalendarGrid
-          holds={holds}
-          slots={slots}
-          selectedStart={null}
-          selectedEnd={null}
-          onSelect={() => {}}
-          onDayClick={onDayClick}
-          cursor={startOfMonth(cursor)}
-          showHeader={false}
-        />
-      )}
-      {view === "week" && (
-        <WeekDayGrid
-          days={Array.from({ length: 7 }, (_, i) =>
-            addDays(startOfWeek(cursor, { weekStartsOn: 0 }), i)
-          )}
-          slots={slots}
-          holds={holds}
-          onDayClick={onDayClick}
-        />
-      )}
-      {view === "day" && (
-        <WeekDayGrid days={[startOfDay(cursor)]} slots={slots} holds={holds} onDayClick={onDayClick} />
-      )}
+      <div className="flex min-h-0 flex-1 flex-col">
+        {view === "month" && (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <CalendarGrid
+              holds={holds}
+              slots={slots}
+              selectedStart={null}
+              selectedEnd={null}
+              onSelect={() => {}}
+              onDayClick={onDayClick}
+              cursor={startOfMonth(cursor)}
+              showHeader={false}
+            />
+          </div>
+        )}
+        {view === "week" && (
+          <WeekDayGrid
+            days={Array.from({ length: 7 }, (_, i) =>
+              addDays(startOfWeek(cursor, { weekStartsOn: 0 }), i)
+            )}
+            slots={slots}
+            holds={holds}
+            onDayClick={onDayClick}
+          />
+        )}
+        {view === "day" && (
+          <WeekDayGrid days={[startOfDay(cursor)]} slots={slots} holds={holds} onDayClick={onDayClick} />
+        )}
+      </div>
     </div>
   );
 }
@@ -224,8 +228,8 @@ function WeekDayGrid({
   const colTemplate = `48px repeat(${days.length}, minmax(0, 1fr))`;
 
   return (
-    <div className="overflow-x-auto">
-      <div className="min-w-full">
+    <div className="flex min-h-0 flex-1 flex-col overflow-x-auto">
+      <div className="flex min-h-0 flex-1 flex-col min-w-full">
         <div className="grid" style={{ gridTemplateColumns: colTemplate }}>
           <div />
           {days.map((d) => {
@@ -296,7 +300,7 @@ function WeekDayGrid({
           </div>
         </div>
 
-        <div className="overflow-y-auto" style={{ maxHeight: VISIBLE_HEIGHT }}>
+        <div className="min-h-0 flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
           <div className="grid" style={{ gridTemplateColumns: colTemplate }}>
             <div className="relative" style={{ height: TOTAL_HEIGHT }}>
               {HOURS.map((h) => (
