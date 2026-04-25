@@ -24,6 +24,7 @@ export async function GET(req: Request) {
 const createSchema = z
   .object({
     label: z.string().min(1),
+    companyName: z.string().trim().min(1).optional(),
     sizeSqft: z.number().int().positive().optional(),
     notes: z.string().optional(),
     startAt: z.string().datetime(),

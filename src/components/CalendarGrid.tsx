@@ -37,9 +37,17 @@ interface Props {
   selectedStart: Date | null;
   selectedEnd: Date | null;
   onSelect: (start: Date | null, end: Date | null) => void;
+  onDayClick?: (day: Date) => void;
 }
 
-export default function CalendarGrid({ holds, slots = [], selectedStart, selectedEnd, onSelect }: Props) {
+export default function CalendarGrid({
+  holds,
+  slots = [],
+  selectedStart,
+  selectedEnd,
+  onSelect,
+  onDayClick,
+}: Props) {
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
 
   const days = useMemo(() => {
@@ -49,6 +57,10 @@ export default function CalendarGrid({ holds, slots = [], selectedStart, selecte
   }, [cursor]);
 
   function handleClick(day: Date) {
+    if (onDayClick) {
+      onDayClick(day);
+      return;
+    }
     if (!selectedStart || (selectedStart && selectedEnd)) {
       onSelect(day, null);
       return;

@@ -38,6 +38,7 @@ export default async function Page() {
         initialSlots={slots.map((s) => ({
           id: s.id,
           label: s.label,
+          companyName: s.companyName,
           sizeSqft: s.sizeSqft,
           notes: s.notes,
           startAt: s.startAt.toISOString(),

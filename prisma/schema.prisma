@@ -49,12 +49,13 @@ model User {
 }
 
 model Slot {
-  id         String   @id @default(cuid())
-  label      String
-  sizeSqft   Int?
-  notes      String?
-  startAt    DateTime @default(now())
-  endAt      DateTime @default(now())
+  id          String   @id @default(cuid())
+  label       String
+  companyName String?
+  sizeSqft    Int?
+  notes       String?
+  startAt     DateTime @default(now())
+  endAt       DateTime @default(now())
   createdAt  DateTime @default(now())
 
   clerkOrgId String

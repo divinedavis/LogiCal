@@ -10,27 +10,27 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") ?? "").trim();
-  if (!q) return NextResponse.json({ orgs: [] });
+  if (!q) return NextResponse.json({ slots: [] });
 
-  const orgs = await prisma.clerkOrg.findMany({
+  const slots = await prisma.slot.findMany({
     where: {
+      endAt: { gte: new Date() },
       OR: [
-        { name: { contains: q, mode: "insensitive" } },
-        { domain: { contains: q, mode: "insensitive" } },
+        { label: { contains: q, mode: "insensitive" } },
+        { companyName: { contains: q, mode: "insensitive" } },
       ],
     },
+    orderBy: { startAt: "asc" },
+    take: 50,
     select: {
       id: true,
-      name: true,
-      domain: true,
-      slots: {
-        where: { endAt: { gte: new Date() } },
-        orderBy: { startAt: "asc" },
-        select: { id: true, label: true, sizeSqft: true, startAt: true, endAt: true },
-      },
+      label: true,
+      companyName: true,
+      sizeSqft: true,
+      startAt: true,
+      endAt: true,
+      clerkOrg: { select: { id: true, name: true, domain: true } },
     },
-    orderBy: { name: "asc" },
-    take: 25,
   });
-  return NextResponse.json({ orgs });
+  return NextResponse.json({ slots });
 }
