@@ -169,14 +169,6 @@ export default function CalendarGrid({
                 {daySlots.slice(0, 2).map((s) => {
                   const start = new Date(s.startAt);
                   const end = new Date(s.endAt);
-                  const sameDay = isSameDay(start, end);
-                  const timeLabel = sameDay
-                    ? `${format(start, "h:mma")}–${format(end, "h:mma")}`
-                    : isSameDay(day, start)
-                    ? `${format(start, "h:mma")} →`
-                    : isSameDay(day, end)
-                    ? `→ ${format(end, "h:mma")}`
-                    : "all day";
                   return (
                     <span
                       key={s.id}
@@ -187,7 +179,6 @@ export default function CalendarGrid({
                       {s.companyName && (
                         <span className="block truncate text-sky-700">{s.companyName}</span>
                       )}
-                      <span className="block truncate text-sky-700">{timeLabel.toLowerCase()}</span>
                     </span>
                   );
                 })}
