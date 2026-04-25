@@ -201,27 +201,6 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">Create Slot</h2>
           <div className="space-y-2">
-            {slots.length === 0 && <p className="text-sm text-slate-500">No slots yet.</p>}
-            {slots.map((s) => {
-              const start = new Date(s.startAt);
-              const end = new Date(s.endAt);
-              const sameDay = start.toDateString() === end.toDateString();
-              return (
-                <div key={s.id} className="rounded-lg bg-slate-50 p-2 text-sm">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-medium">{s.label}</span>
-                    {s.sizeSqft && <span className="text-xs text-slate-500">{s.sizeSqft} sqft</span>}
-                  </div>
-                  <div className="text-xs text-slate-600">
-                    {sameDay
-                      ? `${format(start, "MMM d")} · ${format(start, "h:mma")}–${format(end, "h:mma")}`
-                      : `${format(start, "MMM d, h:mma")} → ${format(end, "MMM d, h:mma")}`}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="space-y-2 border-t border-slate-200 pt-4">
             <input
               type="text"
               value={slotLabel}
