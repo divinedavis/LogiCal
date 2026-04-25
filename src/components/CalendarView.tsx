@@ -27,8 +27,10 @@ interface Props {
 
 const HOUR_START = 7;
 const HOUR_END = 22;
+const HOUR_VISIBLE_END = 17; // 5pm — scroll past this to see later hours
 const HOUR_PX = 48;
 const TOTAL_HEIGHT = (HOUR_END - HOUR_START) * HOUR_PX;
+const VISIBLE_HEIGHT = (HOUR_VISIBLE_END - HOUR_START) * HOUR_PX;
 const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => i + HOUR_START);
 
 const VIEW_STORAGE_KEY = "logical:clerk:calendarView";
@@ -219,95 +221,106 @@ function WeekDayGrid({
     [slots]
   );
 
+  const colTemplate = `48px repeat(${days.length}, minmax(0, 1fr))`;
+
   return (
     <div className="overflow-x-auto">
-      <div
-        className="grid min-w-full"
-        style={{ gridTemplateColumns: `48px repeat(${days.length}, minmax(0, 1fr))` }}
-      >
-        <div />
-        {days.map((d) => {
-          const isToday = isSameDay(d, new Date());
-          return (
-            <button
-              key={d.toISOString()}
-              type="button"
-              onClick={() => onDayClick(d)}
-              className="border-b border-slate-200 pb-2 text-center text-xs"
-            >
-              <div className="text-slate-500 uppercase">{format(d, "EEE")}</div>
-              <div
-                className={[
-                  "mx-auto mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold",
-                  isToday ? "bg-slate-900 text-white" : "text-slate-800",
-                ].join(" ")}
+      <div className="min-w-full">
+        <div className="grid" style={{ gridTemplateColumns: colTemplate }}>
+          <div />
+          {days.map((d) => {
+            const isToday = isSameDay(d, new Date());
+            return (
+              <button
+                key={d.toISOString()}
+                type="button"
+                onClick={() => onDayClick(d)}
+                className="border-b border-slate-200 pb-2 text-center text-xs"
               >
-                {format(d, "d")}
-              </div>
-            </button>
-          );
-        })}
+                <div className="text-slate-500 uppercase">{format(d, "EEE")}</div>
+                <div
+                  className={[
+                    "mx-auto mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold",
+                    isToday ? "bg-slate-900 text-white" : "text-slate-800",
+                  ].join(" ")}
+                >
+                  {format(d, "d")}
+                </div>
+              </button>
+            );
+          })}
 
-        <div className="border-b border-slate-200 pr-1 pt-1 text-right text-[10px] text-slate-500">
-          all-day
-        </div>
-        <div
-          className="relative border-b border-slate-200"
-          style={{ gridColumn: `2 / span ${days.length}` }}
-        >
+          <div className="border-b border-slate-200 pr-1 pt-1 text-right text-[10px] text-slate-500">
+            all-day
+          </div>
           <div
-            className="grid"
-            style={{
-              gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))`,
-              gridAutoRows: "24px",
-              gap: "2px",
-              padding: "2px 0",
-              minHeight: allDayRows.length === 0 ? "8px" : undefined,
-            }}
+            className="relative border-b border-slate-200"
+            style={{ gridColumn: `2 / span ${days.length}` }}
           >
-            {allDayRows.flatMap((row, ri) =>
-              row.map((b) => {
-                const start = new Date(b.slot.startAt);
-                const end = new Date(b.slot.endAt);
-                return (
-                  <button
-                    key={`${b.slot.id}-${ri}`}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDayClick(days[b.startCol]);
-                    }}
-                    className="overflow-hidden truncate rounded-md bg-sky-500 px-2 text-left text-[11px] font-medium text-white shadow-sm hover:bg-sky-600"
-                    style={{
-                      gridRow: ri + 1,
-                      gridColumn: `${b.startCol + 1} / span ${b.span}`,
-                    }}
-                    title={`${b.slot.label}${b.slot.companyName ? ` — ${b.slot.companyName}` : ""} · ${format(start, "MMM d")} → ${format(end, "MMM d")}`}
-                  >
-                    {b.slot.label}
-                    {b.slot.companyName ? ` · ${b.slot.companyName}` : ""}
-                  </button>
-                );
-              })
-            )}
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))`,
+                gridAutoRows: "24px",
+                gap: "2px",
+                padding: "2px 0",
+                minHeight: allDayRows.length === 0 ? "8px" : undefined,
+              }}
+            >
+              {allDayRows.flatMap((row, ri) =>
+                row.map((b) => {
+                  const start = new Date(b.slot.startAt);
+                  const end = new Date(b.slot.endAt);
+                  return (
+                    <button
+                      key={`${b.slot.id}-${ri}`}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDayClick(days[b.startCol]);
+                      }}
+                      className="overflow-hidden truncate rounded-md bg-sky-500 px-2 text-left text-[11px] font-medium text-white shadow-sm hover:bg-sky-600"
+                      style={{
+                        gridRow: ri + 1,
+                        gridColumn: `${b.startCol + 1} / span ${b.span}`,
+                      }}
+                      title={`${b.slot.label}${b.slot.companyName ? ` — ${b.slot.companyName}` : ""} · ${format(start, "MMM d")} → ${format(end, "MMM d")}`}
+                    >
+                      {b.slot.label}
+                      {b.slot.companyName ? ` · ${b.slot.companyName}` : ""}
+                    </button>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="relative" style={{ height: TOTAL_HEIGHT }}>
-          {HOURS.map((h) => (
-            <div
-              key={h}
-              className="absolute left-0 right-0 border-t border-slate-100 pr-1 text-right text-[10px] text-slate-400"
-              style={{ top: (h - HOUR_START) * HOUR_PX }}
-            >
-              {format(new Date(2000, 0, 1, h), "h a")}
+        <div className="overflow-y-auto" style={{ maxHeight: VISIBLE_HEIGHT }}>
+          <div className="grid" style={{ gridTemplateColumns: colTemplate }}>
+            <div className="relative" style={{ height: TOTAL_HEIGHT }}>
+              {HOURS.map((h) => (
+                <div
+                  key={h}
+                  className="absolute left-0 right-0 border-t border-slate-100 pr-1 text-right text-[10px] text-slate-400"
+                  style={{ top: (h - HOUR_START) * HOUR_PX }}
+                >
+                  {format(new Date(2000, 0, 1, h), "h a")}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {days.map((day) => (
-          <DayColumn key={day.toISOString()} day={day} slots={timedSlots} holds={holds} onDayClick={onDayClick} />
-        ))}
+            {days.map((day) => (
+              <DayColumn
+                key={day.toISOString()}
+                day={day}
+                slots={timedSlots}
+                holds={holds}
+                onDayClick={onDayClick}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
