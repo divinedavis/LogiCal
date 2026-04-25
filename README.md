@@ -31,17 +31,6 @@ Clerks (grouped into an org by their email domain — everyone `@acmestorage.com
 - PostgreSQL + Prisma
 - NextAuth (credentials provider, role-gated)
 
-## Local dev
-
-```bash
-cp .env.example .env
-# edit DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL
-npm install
-npx prisma db push
-npm run dev
-# http://localhost:3001
-```
-
 ## Routes
 
 - `/` — landing, pick customer or clerk
@@ -56,19 +45,3 @@ API:
 - `GET /api/slots/search?q=…` — search live slots by label or company (clerk-only)
 - `GET /api/slots/suggestions` — distinct labels and companies the clerk has used before (powers autocomplete)
 - `GET|POST /api/holds`, `PATCH|DELETE /api/holds/:id`, `GET|POST /api/holds/:id/messages` — customer hold + messaging endpoints (the visible Holds list has been removed from the clerk UI; the API remains)
-
-## Deploy
-
-Hosted on DigitalOcean droplet `104.248.12.129` (shared with Polinear, which runs on port 3000). LogiCal runs on port 3001 under pm2, reverse-proxied by nginx with a Let's Encrypt cert for `slottingcal.com` + `www.slottingcal.com`.
-
-Deploy flow:
-
-```bash
-# from the droplet
-cd /root/LogiCal
-git pull --ff-only origin main
-npx prisma db push --accept-data-loss --skip-generate
-npx prisma generate
-npm run build
-pm2 restart logical
-```
