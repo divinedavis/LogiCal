@@ -7,15 +7,16 @@ import { Button } from "@/components/ui/button";
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
+  onSearchClick?: () => void;
 }
 
-const navItems = [
-  { icon: Calendar, label: "Calendar", active: true },
-  { icon: LayoutGrid, label: "Slots" },
-  { icon: Search, label: "Find" },
-];
+export function Sidebar({ open, onClose, onSearchClick }: SidebarProps) {
+  const navItems = [
+    { icon: Calendar, label: "Calendar", active: true, onClick: undefined },
+    { icon: LayoutGrid, label: "Slots", active: false, onClick: undefined },
+    { icon: Search, label: "Find", active: false, onClick: onSearchClick },
+  ];
 
-export function Sidebar({ open, onClose }: SidebarProps) {
   return (
     <>
       {open && (
@@ -54,6 +55,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             {navItems.map((item) => (
               <button
                 key={item.label}
+                type="button"
+                onClick={() => {
+                  item.onClick?.();
+                  onClose();
+                }}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-xl px-3 py-3 transition-colors",
                   "hover:bg-muted",

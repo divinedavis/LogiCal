@@ -6,6 +6,12 @@ import { CalendarHold, CalendarSlot } from "@/components/CalendarGrid";
 import CalendarView from "@/components/CalendarView";
 import AgendaList from "@/components/AgendaList";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Slot {
   id: string;
@@ -74,6 +80,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   const [searchQ, setSearchQ] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResultSlot[] | null>(null);
   const [searching, setSearching] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [popupDay, setPopupDay] = useState<Date | null>(null);
   const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
   const [editSlotState, setEditSlotState] = useState<{
@@ -322,7 +329,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   };
 
   return (
-    <DashboardShell>
+    <DashboardShell onSearchClick={() => setSearchOpen(true)}>
     <main className="mx-auto max-w-6xl p-4 lg:p-6">
       <div className="grid items-start gap-6 lg:grid-cols-[1fr_360px]">
         <div
@@ -495,53 +502,6 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
               Add slot
             </button>
           </div>
-        </div>
-
-        <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold">Find slots</h2>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={searchQ}
-              onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Slot label or company name"
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-            {searching && <span className="text-xs text-slate-500">…</span>}
-          </div>
-          {searchResults !== null && (
-            <div className="space-y-2">
-              {searchResults.length === 0 && !searching && (
-                <p className="text-sm text-slate-500">No slots matched.</p>
-              )}
-              {searchResults.slice(0, 3).map((s) => {
-                const start = new Date(s.startAt);
-                const end = new Date(s.endAt);
-                const sameDay = start.toDateString() === end.toDateString();
-                return (
-                  <div key={s.id} className="rounded-lg border border-slate-200 p-2 text-sm">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-medium">{s.label}</span>
-                      {s.sizeSqft && (
-                        <span className="text-xs text-slate-500">{s.sizeSqft} sqft</span>
-                      )}
-                    </div>
-                    {s.companyName && (
-                      <div className="text-xs text-slate-700">{s.companyName}</div>
-                    )}
-                    <div className="text-xs text-slate-600">
-                      {sameDay
-                        ? `${format(start, "MMM d")} · ${format(start, "h:mma")}–${format(end, "h:mma")}`
-                        : `${format(start, "MMM d, h:mma")} → ${format(end, "MMM d, h:mma")}`}
-                    </div>
-                    <div className="mt-1 text-[11px] text-slate-500">
-                      {s.clerkOrg.name} · <span className="font-mono">{s.clerkOrg.domain}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
         </div>
       </div>
@@ -805,6 +765,60 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
           </div>
         </div>
       )}
+
+      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Find slots</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={searchQ}
+                onChange={(e) => setSearchQ(e.target.value)}
+                placeholder="Slot label or company name"
+                autoFocus
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              />
+              {searching && <span className="text-xs text-slate-500">…</span>}
+            </div>
+            {searchResults !== null && (
+              <div className="space-y-2">
+                {searchResults.length === 0 && !searching && (
+                  <p className="text-sm text-slate-500">No slots matched.</p>
+                )}
+                {searchResults.slice(0, 3).map((s) => {
+                  const start = new Date(s.startAt);
+                  const end = new Date(s.endAt);
+                  const sameDay = start.toDateString() === end.toDateString();
+                  return (
+                    <div key={s.id} className="rounded-lg border border-slate-200 p-2 text-sm">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="font-medium">{s.label}</span>
+                        {s.sizeSqft && (
+                          <span className="text-xs text-slate-500">{s.sizeSqft} sqft</span>
+                        )}
+                      </div>
+                      {s.companyName && (
+                        <div className="text-xs text-slate-700">{s.companyName}</div>
+                      )}
+                      <div className="text-xs text-slate-600">
+                        {sameDay
+                          ? `${format(start, "MMM d")} · ${format(start, "h:mma")}–${format(end, "h:mma")}`
+                          : `${format(start, "MMM d, h:mma")} → ${format(end, "MMM d, h:mma")}`}
+                      </div>
+                      <div className="mt-1 text-[11px] text-slate-500">
+                        {s.clerkOrg.name} · <span className="font-mono">{s.clerkOrg.domain}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </main>
     </DashboardShell>
