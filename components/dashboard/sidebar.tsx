@@ -9,12 +9,19 @@ interface SidebarProps {
   onClose: () => void;
   onSearchClick?: () => void;
   onExportClick?: () => void;
+  onSlotsClick?: () => void;
 }
 
-export function Sidebar({ open, onClose, onSearchClick, onExportClick }: SidebarProps) {
+export function Sidebar({
+  open,
+  onClose,
+  onSearchClick,
+  onExportClick,
+  onSlotsClick,
+}: SidebarProps) {
   const navItems = [
     { icon: Calendar, label: "Calendar", active: true, onClick: undefined },
-    { icon: LayoutGrid, label: "Slots", active: false, onClick: undefined },
+    { icon: LayoutGrid, label: "Companies", active: false, onClick: onSlotsClick },
     { icon: Search, label: "Find", active: false, onClick: onSearchClick },
     { icon: Download, label: "Export", active: false, onClick: onExportClick },
   ];

@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import CompaniesDialog from "@/components/CompaniesDialog";
 
 interface Slot {
   id: string;
@@ -92,6 +93,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   const [exportOpen, setExportOpen] = useState(false);
   const [exportRange, setExportRange] = useState<"day" | "week" | "month">("month");
   const [exportAnchor, setExportAnchor] = useState(defaultDate);
+  const [companiesOpen, setCompaniesOpen] = useState(false);
   const [popupDay, setPopupDay] = useState<Date | null>(null);
   const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
   const [editSlotState, setEditSlotState] = useState<{
@@ -391,6 +393,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
     <DashboardShell
       onSearchClick={() => setSearchOpen(true)}
       onExportClick={() => setExportOpen(true)}
+      onSlotsClick={() => setCompaniesOpen(true)}
     >
     <main className="mx-auto max-w-6xl p-4 lg:p-6">
       <div className="grid items-start gap-6 lg:grid-cols-[1fr_360px]">
@@ -827,6 +830,8 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
           </div>
         </div>
       )}
+
+      <CompaniesDialog open={companiesOpen} onOpenChange={setCompaniesOpen} />
 
       <Dialog open={exportOpen} onOpenChange={setExportOpen}>
         <DialogContent className="sm:max-w-md">

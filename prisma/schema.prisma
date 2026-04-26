@@ -24,9 +24,29 @@ model ClerkOrg {
   name      String
   createdAt DateTime @default(now())
 
-  clerks User[]  @relation("ClerkOrgClerks")
-  slots  Slot[]
-  holds  Hold[]
+  clerks    User[]    @relation("ClerkOrgClerks")
+  slots     Slot[]
+  holds     Hold[]
+  companies Company[]
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String?
+  phone       String?
+  email       String?
+  address     String?
+  website     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  clerkOrgId String
+  clerkOrg   ClerkOrg @relation(fields: [clerkOrgId], references: [id], onDelete: Cascade)
+
+  @@unique([clerkOrgId, name])
+  @@index([clerkOrgId])
 }
 
 model User {
