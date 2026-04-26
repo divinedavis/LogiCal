@@ -27,7 +27,7 @@ export function DashboardShell({
         onExportClick={onExportClick}
         onSlotsClick={onSlotsClick}
       />
-      <div className="lg:pl-20">
+      <div className="flex min-h-screen flex-col lg:pl-20">
         <Header onMenuClick={() => setSidebarOpen(true)} />
         {children}
       </div>

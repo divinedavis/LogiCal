@@ -395,10 +395,10 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
       onExportClick={() => setExportOpen(true)}
       onSlotsClick={() => setCompaniesOpen(true)}
     >
-    <main className="mx-auto max-w-6xl p-4 lg:p-6">
-      <div className="grid items-start gap-6 lg:grid-cols-[1fr_360px]">
+    <main className="mx-auto w-full max-w-6xl p-4 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:p-6">
+      <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1fr_360px]">
         <div
-          className="hidden md:block"
+          className="hidden md:block lg:h-full lg:min-h-0"
           style={
             rightHeight
               ? { height: `${rightHeight}px`, minHeight: 0 }
@@ -413,8 +413,11 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
           <AgendaList holds={calHolds} slots={calSlots} onDayClick={onPickDay} />
         </div>
 
-        <div ref={rightColRef} className="space-y-6">
-        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div
+          ref={rightColRef}
+          className="space-y-6 lg:flex lg:min-h-0 lg:flex-col lg:space-y-0"
+        >
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-1 lg:overflow-y-auto">
           <h2 className="text-lg font-semibold">Create Slot</h2>
           <div className="space-y-2">
             <div className="relative">
