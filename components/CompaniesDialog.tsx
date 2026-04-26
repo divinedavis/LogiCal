@@ -152,11 +152,16 @@ export default function CompaniesDialog({ open, onOpenChange }: Props) {
   }
 
   function row(label: string, value: string | null) {
-    if (!value) return null;
     return (
       <div className="grid grid-cols-[8rem_1fr] gap-2 py-1.5 text-sm">
         <div className="text-slate-500">{label}</div>
-        <div className="whitespace-pre-line text-slate-900">{value}</div>
+        <div
+          className={
+            value ? "whitespace-pre-line text-slate-900" : "text-slate-400"
+          }
+        >
+          {value || "—"}
+        </div>
       </div>
     );
   }
@@ -236,17 +241,6 @@ export default function CompaniesDialog({ open, onOpenChange }: Props) {
               {row("Website", current.website)}
               {row("Address", current.address)}
               {row("Notes", current.notes)}
-              {!current.pointOfContact &&
-                !current.contactName &&
-                !current.phone &&
-                !current.email &&
-                !current.website &&
-                !current.address &&
-                !current.notes && (
-                  <p className="text-sm text-slate-500">
-                    No company details yet — click Edit to add them.
-                  </p>
-                )}
             </div>
             <div className="flex gap-2">
               <button
