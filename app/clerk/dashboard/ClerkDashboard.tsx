@@ -398,14 +398,14 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
     <main className="mx-auto w-full max-w-6xl p-4 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:p-6">
       <div className="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1fr_360px]">
         <div
-          className="hidden md:block lg:h-full lg:min-h-0"
+          className="hidden md:block lg:h-full lg:min-h-0 lg:overflow-hidden"
           style={
             rightHeight
               ? { height: `${rightHeight}px`, minHeight: 0 }
               : undefined
           }
         >
-          <div className="h-full">
+          <div className="h-full overflow-hidden">
             <CalendarView holds={calHolds} slots={calSlots} onDayClick={onPickDay} />
           </div>
         </div>
@@ -415,7 +415,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
 
         <div
           ref={rightColRef}
-          className="space-y-6 lg:flex lg:min-h-0 lg:flex-col lg:space-y-0"
+          className="space-y-6 lg:flex lg:min-h-0 lg:flex-col lg:space-y-0 lg:overflow-hidden"
         >
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-1 lg:overflow-y-auto">
           <h2 className="text-lg font-semibold">Create Slot</h2>
