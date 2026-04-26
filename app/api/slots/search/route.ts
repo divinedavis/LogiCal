@@ -14,7 +14,6 @@ export async function GET(req: Request) {
 
   const slots = await prisma.slot.findMany({
     where: {
-      endAt: { gte: new Date() },
       OR: [
         { label: { contains: q, mode: "insensitive" } },
         { companyName: { contains: q, mode: "insensitive" } },

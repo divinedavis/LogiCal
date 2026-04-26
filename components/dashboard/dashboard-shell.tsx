@@ -7,9 +7,10 @@ import { Header } from "./header";
 interface Props {
   children: React.ReactNode;
   onSearchClick?: () => void;
+  onExportClick?: () => void;
 }
 
-export function DashboardShell({ children, onSearchClick }: Props) {
+export function DashboardShell({ children, onSearchClick, onExportClick }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <div className="min-h-screen bg-background">
@@ -17,6 +18,7 @@ export function DashboardShell({ children, onSearchClick }: Props) {
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         onSearchClick={onSearchClick}
+        onExportClick={onExportClick}
       />
       <div className="lg:pl-20">
         <Header onMenuClick={() => setSidebarOpen(true)} />

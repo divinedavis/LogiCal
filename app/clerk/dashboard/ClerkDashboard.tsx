@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { format } from "date-fns";
+import {
+  format,
+  startOfDay,
+  endOfDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 import { CalendarHold, CalendarSlot } from "@/components/CalendarGrid";
 import CalendarView from "@/components/CalendarView";
 import AgendaList from "@/components/AgendaList";
@@ -81,6 +89,9 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
   const [searchResults, setSearchResults] = useState<SearchResultSlot[] | null>(null);
   const [searching, setSearching] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportRange, setExportRange] = useState<"day" | "week" | "month">("month");
+  const [exportAnchor, setExportAnchor] = useState(defaultDate);
   const [popupDay, setPopupDay] = useState<Date | null>(null);
   const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
   const [editSlotState, setEditSlotState] = useState<{
@@ -328,8 +339,59 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
     setEditSlotState(null);
   };
 
+  function exportCsv() {
+    const anchor = new Date(`${exportAnchor}T00:00:00`);
+    if (Number.isNaN(anchor.getTime())) return;
+    const rangeStart =
+      exportRange === "day"
+        ? startOfDay(anchor)
+        : exportRange === "week"
+          ? startOfWeek(anchor, { weekStartsOn: 0 })
+          : startOfMonth(anchor);
+    const rangeEnd =
+      exportRange === "day"
+        ? endOfDay(anchor)
+        : exportRange === "week"
+          ? endOfWeek(anchor, { weekStartsOn: 0 })
+          : endOfMonth(anchor);
+
+    const inRange = slots
+      .filter((s) => {
+        const start = new Date(s.startAt);
+        const end = new Date(s.endAt);
+        return start <= rangeEnd && end >= rangeStart;
+      })
+      .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+
+    const escape = (v: string) => {
+      if (/[",\n]/.test(v)) return `"${v.replace(/"/g, '""')}"`;
+      return v;
+    };
+    const header = ["Company", "Start Date", "End Date", "Size (sqft)"];
+    const rows = inRange.map((s) => [
+      s.companyName ?? s.label,
+      format(new Date(s.startAt), "yyyy-MM-dd HH:mm"),
+      format(new Date(s.endAt), "yyyy-MM-dd HH:mm"),
+      s.sizeSqft != null ? String(s.sizeSqft) : "",
+    ]);
+    const csv = [header, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `slots-${exportRange}-${format(rangeStart, "yyyy-MM-dd")}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setExportOpen(false);
+  }
+
   return (
-    <DashboardShell onSearchClick={() => setSearchOpen(true)}>
+    <DashboardShell
+      onSearchClick={() => setSearchOpen(true)}
+      onExportClick={() => setExportOpen(true)}
+    >
     <main className="mx-auto max-w-6xl p-4 lg:p-6">
       <div className="grid items-start gap-6 lg:grid-cols-[1fr_360px]">
         <div
@@ -765,6 +827,60 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
           </div>
         </div>
       )}
+
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Export slots</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">Range</label>
+              <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
+                {(["day", "week", "month"] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setExportRange(r)}
+                    className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                      exportRange === r
+                        ? "bg-white text-foreground shadow-sm"
+                        : "text-slate-600"
+                    }`}
+                  >
+                    {r[0].toUpperCase() + r.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">
+                {exportRange === "day"
+                  ? "Day"
+                  : exportRange === "week"
+                    ? "Any day in week (Sun–Sat)"
+                    : "Any day in month"}
+              </label>
+              <input
+                type="date"
+                value={exportAnchor}
+                onChange={(e) => setExportAnchor(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <p className="text-xs text-slate-500">
+              CSV columns: Company, Start Date, End Date, Size (sqft).
+            </p>
+            <button
+              type="button"
+              onClick={exportCsv}
+              className="w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white"
+            >
+              Download CSV
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent className="sm:max-w-lg">

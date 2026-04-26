@@ -2,17 +2,13 @@ import Link from "next/link";
 import { ArrowRight, Calendar, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LogoBanner } from "@/components/Logo";
 
 export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 py-16">
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-          <span className="text-lg font-bold text-primary-foreground">L</span>
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">LogiCal</h1>
-      </div>
-      <p className="mt-3 text-lg text-muted-foreground">
+      <LogoBanner className="w-full max-w-2xl" />
+      <p className="mt-6 text-lg text-muted-foreground">
         Slotting calendar for warehouse and storage clerks.
       </p>
 

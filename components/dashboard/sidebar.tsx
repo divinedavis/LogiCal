@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, LayoutGrid, Search, Settings, X } from "lucide-react";
+import { Calendar, Download, LayoutGrid, Search, Settings, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -8,13 +8,15 @@ interface SidebarProps {
   open: boolean;
   onClose: () => void;
   onSearchClick?: () => void;
+  onExportClick?: () => void;
 }
 
-export function Sidebar({ open, onClose, onSearchClick }: SidebarProps) {
+export function Sidebar({ open, onClose, onSearchClick, onExportClick }: SidebarProps) {
   const navItems = [
     { icon: Calendar, label: "Calendar", active: true, onClick: undefined },
     { icon: LayoutGrid, label: "Slots", active: false, onClick: undefined },
     { icon: Search, label: "Find", active: false, onClick: onSearchClick },
+    { icon: Download, label: "Export", active: false, onClick: onExportClick },
   ];
 
   return (
