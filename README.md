@@ -10,11 +10,9 @@ Clerks (grouped into an org by their email domain — everyone `@acmestorage.com
 
 ## Screenshots
 
-> Drop PNGs into `docs/screenshots/` to populate this section.
-
-| Clerk dashboard (Month) | Find slots | Companies |
-| --- | --- | --- |
-| ![Clerk dashboard](docs/screenshots/clerk-dashboard.png) | ![Find slots](docs/screenshots/find-slots.png) | ![Companies](docs/screenshots/companies.png) |
+| Clerk dashboard (Month) | Find slots |
+| --- | --- |
+| ![Clerk dashboard](docs/screenshots/clerk-dashboard.png) | ![Find slots](docs/screenshots/find-slots.png) |
 
 ## Clerk dashboard
 
