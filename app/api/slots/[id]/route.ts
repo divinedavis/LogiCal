@@ -47,6 +47,21 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       ...(endAt ? { endAt: new Date(endAt) } : {}),
     },
   });
+  if (rest.companyName) {
+    await prisma.company.upsert({
+      where: {
+        clerkOrgId_name: {
+          clerkOrgId: auth.slot.clerkOrgId,
+          name: rest.companyName,
+        },
+      },
+      update: {},
+      create: {
+        clerkOrgId: auth.slot.clerkOrgId,
+        name: rest.companyName,
+      },
+    });
+  }
   return NextResponse.json({ slot });
 }
 

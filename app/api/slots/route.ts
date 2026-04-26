@@ -52,5 +52,20 @@ export async function POST(req: Request) {
       clerkOrgId: session.user.clerkOrgId,
     },
   });
+  if (parsed.data.companyName) {
+    await prisma.company.upsert({
+      where: {
+        clerkOrgId_name: {
+          clerkOrgId: session.user.clerkOrgId,
+          name: parsed.data.companyName,
+        },
+      },
+      update: {},
+      create: {
+        clerkOrgId: session.user.clerkOrgId,
+        name: parsed.data.companyName,
+      },
+    });
+  }
   return NextResponse.json({ slot });
 }
