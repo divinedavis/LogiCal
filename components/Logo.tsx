@@ -27,7 +27,7 @@ export function LogoBanner({ className }: { className?: string }) {
       <div className="absolute right-1/3 top-1/4 h-32 w-32 rounded-full bg-emerald-100/20 blur-2xl" />
       <div className="relative flex items-center justify-center gap-4 px-8 py-10 text-white">
         <span className="text-5xl font-black tracking-tighter">SC</span>
-        <span className="text-3xl font-bold tracking-tight">LogiCal</span>
+        <span className="text-3xl font-bold tracking-tight">SlottingCal</span>
       </div>
     </div>
   );

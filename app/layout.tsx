@@ -5,7 +5,7 @@ import { GeistMono } from "geist/font/mono";
 import SessionProvider from "@/components/SessionProvider";
 
 export const metadata: Metadata = {
-  title: "LogiCal",
+  title: "SlottingCal",
   description: "Slotting calendar for warehouse / dock / storage clerks",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],

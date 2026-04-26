@@ -41,7 +41,7 @@ export function Sidebar({ open, onClose, onSearchClick, onExportClick }: Sidebar
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <span className="text-sm font-bold text-primary-foreground">L</span>
               </div>
-              <span className="font-semibold text-foreground lg:hidden">LogiCal</span>
+              <span className="font-semibold text-foreground lg:hidden">SlottingCal</span>
             </div>
             <Button
               variant="ghost"

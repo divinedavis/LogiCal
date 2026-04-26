@@ -11,7 +11,7 @@ export default function TopBar() {
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3 sm:px-6">
         <Link href="/" className="text-lg font-bold">
-          LogiCal
+          SlottingCal
         </Link>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600">
           {user && (

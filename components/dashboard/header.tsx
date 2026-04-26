@@ -33,7 +33,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <Menu className="h-5 w-5" />
         </Button>
 
-        <h1 className="font-semibold text-foreground md:hidden">LogiCal</h1>
+        <h1 className="font-semibold text-foreground md:hidden">SlottingCal</h1>
 
         <div className="hidden items-center gap-3 md:flex">
           <h1 className="text-lg font-semibold text-foreground">Calendar</h1>
