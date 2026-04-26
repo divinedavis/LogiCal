@@ -20,6 +20,7 @@ export async function GET() {
 const createSchema = z.object({
   name: z.string().trim().min(1),
   contactName: z.string().trim().optional(),
+  pointOfContact: z.string().trim().optional(),
   phone: z.string().trim().optional(),
   email: z.string().trim().optional(),
   address: z.string().trim().optional(),
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
       data: {
         ...parsed.data,
         contactName: parsed.data.contactName || null,
+        pointOfContact: parsed.data.pointOfContact || null,
         phone: parsed.data.phone || null,
         email: parsed.data.email || null,
         address: parsed.data.address || null,

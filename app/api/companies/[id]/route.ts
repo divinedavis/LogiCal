@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 const patchSchema = z.object({
   name: z.string().trim().min(1).optional(),
   contactName: z.string().trim().nullable().optional(),
+  pointOfContact: z.string().trim().nullable().optional(),
   phone: z.string().trim().nullable().optional(),
   email: z.string().trim().nullable().optional(),
   address: z.string().trim().nullable().optional(),
