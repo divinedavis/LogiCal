@@ -7,9 +7,6 @@ import SessionProvider from "@/components/SessionProvider";
 export const metadata: Metadata = {
   title: "SlottingCal",
   description: "Slotting calendar for warehouse / dock / storage clerks",
-  icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-  },
 };
 
 export const viewport = {

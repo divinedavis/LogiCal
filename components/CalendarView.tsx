@@ -78,7 +78,7 @@ export default function CalendarView({ holds, slots, onDayClick }: Props) {
   }, [view, cursor]);
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+    <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-xl shadow-slate-900/10 sm:p-5">
       <div className="mb-4 flex shrink-0 flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <button

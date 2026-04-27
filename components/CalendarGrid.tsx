@@ -100,7 +100,7 @@ export default function CalendarGrid({
   }
 
   const wrapperClass = showHeader
-    ? "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+    ? "rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/10"
     : "";
 
   return (

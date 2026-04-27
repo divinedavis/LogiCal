@@ -417,7 +417,7 @@ export default function ClerkDashboard({ org, initialSlots, initialHolds }: Prop
           ref={rightColRef}
           className="space-y-6 lg:flex lg:min-h-0 lg:flex-col lg:space-y-0 lg:overflow-hidden"
         >
-        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:flex-1 lg:overflow-y-auto">
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/10 lg:flex-1 lg:overflow-y-auto">
           <h2 className="text-lg font-semibold">Create Slot</h2>
           <div className="space-y-2">
             <div className="relative">
